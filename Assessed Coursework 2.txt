@@ -1,0 +1,41 @@
+; Program to input base 4 and get out base 10
+	 BR	main                   ;Branch to main
+         number1:	.BLOCK 2
+         number2:	.BLOCK 2
+         answer:       .BLOCK 2       	;space for up to 2 bytes (16 bits) 
+msg1:	.ASCII "Please Input a number in base 4 \x00" 
+msg2:	.ASCII "The decimal equivalent is : \x00" 
+msg3:	.ASCII "Do you want to input another number (answer y or n)? \x00"
+msg4:	.ASCII "Thank you Good-Bye \x00"
+
+main:       LDX     0,i 	      ; load index register with 0
+            STRO    msg1,d              ;Output the Input request message
+            LDA     0x0000,i            ;Clear the accumulator
+
+number:     CHARI   number1,x           ;Reads the input character
+            LDBYTEA     number1,x           ;Loads the input number into the accumulator
+            CPA     0x000A,i            ;Compares the number against the accumulator
+            BREQ    out	      ;If the user presses enter goto the out (branch away)
+            SUBA    0x0030,i            ;Subtracts 48 from the number to get it's ascii value
+            STA     number1,d
+            LDA     number2,d           ;Loads new number into accumilator
+            ADDA    number2,d           ;Adds the number to itself 4 times to get it's base 4 number
+            ADDA    number2,d           
+            ADDA    number2,d            
+            ADDA    number1,d              
+            STA     number2,d           ;Stores the number in memeory
+            LDA     0x0000,i            ;Clear the accumulator
+            BR      number              ;Keeps the loop through until all numbers are done being proccessed
+                 
+out:        STRO    msg2,d              ;Output Decimal equivalent message
+            DECO    number2,d           ;Output Decimal equivalent number
+            CHARO   '\n',i              ;Creates a new line for output message
+            STRO    msg3,d              ;Output message asking user if he/she wants to input a new number
+            LDA     0x0000,i            ;Clear the accumulator
+            CHARI   answer,x            ;Reads the input character
+            CPA     0x0079,i            ;Compares the accumulator to the ASCII value of lowercase y
+            BREQ    main                ;If true then go back to the start
+            STRO    msg4,d              ;Else output leaving message
+
+               
+.END
